@@ -187,11 +187,7 @@ export default function LoginPage({ onLoginSuccess, branchName = 'LDN' }) {
     return () => clearInterval(autoPlayRef.current)
   }, [isPaused, loginSuccessState, slides.length])
 
-  useEffect(() => {
-    if (isSupabaseConfigured) {
-      syncMatrixPermissionsFromSupabase().catch(() => {})
-    }
-  }, [])
+
 
   const handleNextSlide = () => {
     setActiveSlide((prev) => (prev + 1) % slides.length)

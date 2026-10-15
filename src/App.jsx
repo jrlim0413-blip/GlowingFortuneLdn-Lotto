@@ -1942,26 +1942,12 @@ function App() {
     }
     window.addEventListener('luckybet_rbac_change', handleRbacChange)
 
-    if (isSupabaseConfigured) {
-      syncMatrixPermissionsFromSupabase().catch(() => {})
-      syncCommissionSettingsFromSupabase().catch(() => {})
-    }
-
     const unsubRealtime = subscribeToMatrixRealtime(() => {
       syncMatrixPermissionsFromSupabase().catch(() => {})
     })
 
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && isSupabaseConfigured) {
-        syncMatrixPermissionsFromSupabase().catch(() => {})
-        syncCommissionSettingsFromSupabase().catch(() => {})
-      }
-    }
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-
     return () => {
       window.removeEventListener('luckybet_rbac_change', handleRbacChange)
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
       if (typeof unsubRealtime === 'function') unsubRealtime()
     }
   }, [])

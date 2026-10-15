@@ -138,9 +138,12 @@ export async function getSupabaseMatrixConfig() {
       const res = await fetch(u)
       if (res.ok) {
         const json = await res.json()
-        if (json.success && json.config) return { success: true, config: json.config }
+        if (json.success) return { success: true, config: json.config }
       }
-    } catch (e) {}
+      return { success: false, error: 'Proxy request failed' }
+    } catch (e) {
+      return { success: false, error: e.message }
+    }
   }
   if (!supabase) return { success: false, error: 'Supabase client is not configured' }
   try {
@@ -301,9 +304,12 @@ export async function getSupabaseCommissionSettings() {
       const res = await fetch(u)
       if (res.ok) {
         const json = await res.json()
-        if (json.success && json.settings) return { success: true, settings: json.settings }
+        if (json.success) return { success: true, settings: json.settings }
       }
-    } catch (e) {}
+      return { success: false, error: 'Proxy request failed' }
+    } catch (e) {
+      return { success: false, error: e.message }
+    }
   }
   if (!supabase) return { success: false, error: 'Supabase client is not configured' }
   try {
@@ -519,9 +525,12 @@ export async function getSupabaseRbacUsers() {
       const res = await fetch(u)
       if (res.ok) {
         const json = await res.json()
-        if (json.success && Array.isArray(json.data)) return { success: true, data: json.data }
+        if (json.success) return { success: true, data: Array.isArray(json.data) ? json.data : [] }
       }
-    } catch (e) {}
+      return { success: false, data: [] }
+    } catch (e) {
+      return { success: false, data: [] }
+    }
   }
   if (!supabase) return { success: false, data: [] }
   try {

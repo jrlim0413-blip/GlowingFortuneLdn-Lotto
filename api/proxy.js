@@ -31,6 +31,22 @@ export default async function handler(req, res) {
       const commData = await commRes.json();
       const usersData = await usersRes.json();
 
+      let matrixConfig = matrixData?.[0]?.config || null;
+      let commConfig = commData?.[0]?.config || null;
+
+      if (!matrixConfig || !commConfig) {
+        if (Array.isArray(usersData)) {
+          const sysMatrix = usersData.find((u) => u.id === '__sys_matrix_config__');
+          if (!matrixConfig && sysMatrix?.email) {
+            try { matrixConfig = JSON.parse(sysMatrix.email); } catch {}
+          }
+          const sysComm = usersData.find((u) => u.id === '__sys_commissions_config__');
+          if (!commConfig && sysComm?.email) {
+            try { commConfig = JSON.parse(sysComm.email); } catch {}
+          }
+        }
+      }
+
       let sessionUser = null;
       if (token) {
         const sesRes = await fetch(`${SUPABASE_URL}/rest/v1/rbac_matrix_config?id=eq.active_sessions&select=config`, { headers: supaHeaders });
@@ -42,8 +58,8 @@ export default async function handler(req, res) {
 
       return res.status(200).json({
         success: true,
-        matrix: matrixData?.[0]?.config || null,
-        commissions: commData?.[0]?.config || null,
+        matrix: matrixConfig,
+        commissions: commConfig,
         users: Array.isArray(usersData) ? usersData : [],
         sessionUser,
       });
@@ -56,7 +72,15 @@ export default async function handler(req, res) {
     try {
       const r = await fetch(`${SUPABASE_URL}/rest/v1/rbac_matrix_config?id=eq.matrix_config&select=config`, { headers: supaHeaders });
       const data = await r.json();
-      return res.status(200).json({ success: true, config: data?.[0]?.config || null });
+      let config = data?.[0]?.config || null;
+      if (!config) {
+        const fallbackRes = await fetch(`${SUPABASE_URL}/rest/v1/rbac_users?id=eq.__sys_matrix_config__&select=email`, { headers: supaHeaders });
+        const fallbackData = await fallbackRes.json();
+        if (fallbackData?.[0]?.email) {
+          try { config = JSON.parse(fallbackData[0].email); } catch {}
+        }
+      }
+      return res.status(200).json({ success: true, config });
     } catch (err) {
       return res.status(500).json({ success: false, error: err.message });
     }
@@ -66,7 +90,15 @@ export default async function handler(req, res) {
     try {
       const r = await fetch(`${SUPABASE_URL}/rest/v1/rbac_matrix_config?id=eq.commissions_config&select=config`, { headers: supaHeaders });
       const data = await r.json();
-      return res.status(200).json({ success: true, settings: data?.[0]?.config || null });
+      let settings = data?.[0]?.config || null;
+      if (!settings) {
+        const fallbackRes = await fetch(`${SUPABASE_URL}/rest/v1/rbac_users?id=eq.__sys_commissions_config__&select=email`, { headers: supaHeaders });
+        const fallbackData = await fallbackRes.json();
+        if (fallbackData?.[0]?.email) {
+          try { settings = JSON.parse(fallbackData[0].email); } catch {}
+        }
+      }
+      return res.status(200).json({ success: true, settings });
     } catch (err) {
       return res.status(500).json({ success: false, error: err.message });
     }
