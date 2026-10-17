@@ -33,13 +33,13 @@ import {
 } from './rbac'
 import './App.css'
 
-const tellerApiUrl = import.meta.env.VITE_API_URL || 'https://stl-ldn-api.com/api/accountant/TellerGrossPerDay?id=5&from=2026-10-09&to=2026-10-10'
-const drawApiUrl = import.meta.env.VITE_DRAW_API_URL || 'https://stl-ldn-api.com/api/accountant/GrossPerDraw?id=5&drawId=1463&from=2026-10-10&to=2026-10-11'
-const drawIds = ((import.meta.env.VITE_DRAW_IDS ?? '248,249,250,251,252,253')).split(',').map((value) => value.trim()).filter(Boolean)
-const overallApiUrl = import.meta.env.VITE_OVERALL_API_URL || 'https://stl-ldn-api.com/api/accountant/OverAllReports?id=5&from=2026-10-10&to=2026-10-11'
-const supervisorApiUrl = import.meta.env.VITE_SUPERVISOR_API_URL || 'https://stl-ldn-api.com/api/accountant/AccountantSpvrWithGross?id=5&from=2026-10-09&to=2026-10-10'
+const tellerApiUrl = import.meta.env.VITE_API_URL || ''
+const drawApiUrl = import.meta.env.VITE_DRAW_API_URL || ''
+const drawIds = (import.meta.env.VITE_DRAW_IDS || '').split(',').map((value) => value.trim()).filter(Boolean)
+const overallApiUrl = import.meta.env.VITE_OVERALL_API_URL || ''
+const supervisorApiUrl = import.meta.env.VITE_SUPERVISOR_API_URL || ''
 const authorization = import.meta.env.VITE_AUTHORIZATION || ''
-const configuredBranch = import.meta.env.VITE_BRANCH_NAME || 'LDN'
+const configuredBranch = import.meta.env.VITE_BRANCH_NAME || ''
 
 function getCurrentDate() {
   return formatDate(new Date())

@@ -281,7 +281,7 @@ export default function LoginPage({ onLoginSuccess, branchName = 'LDN' }) {
 
       if (!loginSuccess) {
         try {
-          const loginUrl = (typeof window !== 'undefined' && window.location.protocol.startsWith('http')) ? new URL('/api/proxy?action=login', window.location.origin) : new URL('https://stl-ldn-api.com/api/accountant/login')
+          const loginUrl = (typeof window !== 'undefined' && window.location.protocol.startsWith('http')) ? new URL('/api/proxy?action=login', window.location.origin) : null
           const res = await fetch(loginUrl, {
             method: 'POST',
             headers: {

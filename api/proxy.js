@@ -7,9 +7,9 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://zcautuharvzntfbmling.supabase.co';
-  const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjYXV0dWhhcnZ6bnRmYm1saW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2NDA5OTQsImV4cCI6MjEwNzIxNjk5NH0.AjZkT3Voujg-84-JjLRNzd8QjqbE8pSL8CwoJmg0iJ0';
-  const authBearer = process.env.VITE_AUTHORIZATION || '74242|PwJgY3Ia4jzsBUGsfyedB3BvpelUP0Sb9XxcYZmE';
+  const SUPABASE_URL = process.env.VITE_SUPABASE_URL || '';
+  const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY || '';
+  const authBearer = process.env.VITE_AUTHORIZATION || '';
 
   const supaHeaders = {
     'apikey': SUPABASE_KEY,
@@ -237,8 +237,12 @@ export default async function handler(req, res) {
 
   if (action === 'login') {
     try {
+      const loginBase = process.env.VITE_LOGIN_API_URL || (process.env.VITE_API_URL ? new URL('/api/accountant/login', process.env.VITE_API_URL).toString() : '');
+      if (!loginBase) {
+        return res.status(400).json({ success: false, error: 'Login API endpoint is not configured in Vercel environment variables.' });
+      }
       const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-      const r = await fetch('https://stl-ldn-api.com/api/accountant/login', {
+      const r = await fetch(loginBase, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify(body),
@@ -252,13 +256,39 @@ export default async function handler(req, res) {
 
   let targetUrl = '';
   if (type === 'overall') {
-    targetUrl = `https://stl-ldn-api.com/api/accountant/OverAllReports?id=${id || 5}&from=${from}&to=${to}`;
+    if (process.env.VITE_OVERALL_API_URL) {
+      const u = new URL(process.env.VITE_OVERALL_API_URL);
+      if (from) u.searchParams.set('from', from);
+      if (to) u.searchParams.set('to', to);
+      if (id) u.searchParams.set('id', id);
+      targetUrl = u.toString();
+    }
   } else if (type === 'draw') {
-    targetUrl = `https://stl-ldn-api.com/api/accountant/GrossPerDraw?id=${id || 5}&drawId=${drawId}&from=${from}&to=${to}`;
+    if (process.env.VITE_DRAW_API_URL) {
+      const u = new URL(process.env.VITE_DRAW_API_URL);
+      if (drawId) u.searchParams.set('drawId', drawId);
+      if (from) u.searchParams.set('from', from);
+      if (to) u.searchParams.set('to', to);
+      if (id) u.searchParams.set('id', id);
+      targetUrl = u.toString();
+    }
   } else if (type === 'supervisor') {
-    targetUrl = `https://stl-ldn-api.com/api/accountant/AccountantSpvrWithGross?id=${id || 5}&from=${from}&to=${to}${drawId ? `&drawId=${drawId}` : ''}`;
+    if (process.env.VITE_SUPERVISOR_API_URL) {
+      const u = new URL(process.env.VITE_SUPERVISOR_API_URL);
+      if (from) u.searchParams.set('from', from);
+      if (to) u.searchParams.set('to', to);
+      if (drawId) u.searchParams.set('drawId', drawId);
+      if (id) u.searchParams.set('id', id);
+      targetUrl = u.toString();
+    }
   } else if (type === 'teller') {
-    targetUrl = `https://stl-ldn-api.com/api/accountant/TellerGrossPerDay?id=${id || 5}&from=${from}&to=${to}`;
+    if (process.env.VITE_API_URL) {
+      const u = new URL(process.env.VITE_API_URL);
+      if (from) u.searchParams.set('from', from);
+      if (to) u.searchParams.set('to', to);
+      if (id) u.searchParams.set('id', id);
+      targetUrl = u.toString();
+    }
   }
 
   if (targetUrl) {
